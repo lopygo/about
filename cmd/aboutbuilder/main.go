@@ -210,6 +210,8 @@ func LoadConfig() (conf Config) {
 
 	v := viper.New()
 
+	configFile := pflag.String("config", "config", "config file without ext. ext is yml or yaml")
+
 	pflag.String("app.name", "demo", "app name")
 	pflag.String("app.version", "0.0.0-test", "app version")
 	pflag.String("app.description", "description of app", "build bash file name")
@@ -229,8 +231,9 @@ func LoadConfig() (conf Config) {
 	// v.SetDefault("")
 
 	v.AddConfigPath(".")
-	v.SetConfigName("config")
+	v.SetConfigName(*configFile)
 	v.SetConfigType("yaml")
+
 	err := v.ReadInConfig()
 	if err != nil {
 

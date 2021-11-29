@@ -210,7 +210,7 @@ func LoadConfig() (conf Config) {
 
 	v := viper.New()
 
-	configFile := pflag.String("config", "config", "config file without ext. ext is yml or yaml")
+	configFile := pflag.String("configDir", ".", "config dir. config filename is config.yml or config.yaml")
 
 	pflag.String("app.name", "demo", "app name")
 	pflag.String("app.version", "0.0.0-test", "app version")
@@ -231,8 +231,8 @@ func LoadConfig() (conf Config) {
 	v.BindEnv("app.version", "APP_VERSION")
 	// v.SetDefault("")
 
-	v.AddConfigPath(".")
-	v.SetConfigName(*configFile)
+	v.AddConfigPath(*configFile)
+	v.SetConfigName("config")
 	v.SetConfigType("yaml")
 
 	err := v.ReadInConfig()
@@ -241,7 +241,6 @@ func LoadConfig() (conf Config) {
 		// 没找到文件，则不用管
 		err, ok := err.(viper.ConfigFileNotFoundError)
 		if ok {
-			// fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@")
 		} else {
 
 			panic(err)
@@ -249,7 +248,6 @@ func LoadConfig() (conf Config) {
 
 	}
 
-	// fmt.Println(v.Get("copyright.website"))
 	err = v.Unmarshal(&conf)
 	if err != nil {
 		panic(err)

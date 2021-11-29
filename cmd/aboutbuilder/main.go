@@ -228,6 +228,7 @@ func LoadConfig() (conf Config) {
 	pflag.Parse()
 	v.BindPFlags(pflag.CommandLine)
 
+	v.BindEnv("app.version", "APP_VERSION")
 	// v.SetDefault("")
 
 	v.AddConfigPath(".")

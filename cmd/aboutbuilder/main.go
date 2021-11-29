@@ -117,6 +117,9 @@ func main() {
 	fmt.Printf(`build bash created on location: "%s"`, filename)
 	fmt.Println()
 
+	if !conf.Build.Run {
+		return
+	}
 	buildCmd := exec.Command("sh", filename)
 
 	output, err := buildCmd.Output()
@@ -183,6 +186,9 @@ type BuildConfig struct {
 
 	// ScriptFile bash file name
 	ScriptFile string `mapstructure:"script"`
+
+	// Run if run script
+	Run bool `mapstructure:"run"`
 }
 
 type AppConfig struct {

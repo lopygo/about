@@ -44,9 +44,6 @@ func main() {
 	now := time.Now()
 	buildTimeString := now.Format(time.RFC3339)
 
-	// git
-	commitString := string(execShell("git", "rev-parse", "HEAD"))
-
 	// go version
 	goVersionString := fmt.Sprintf("%s %s/%s", runtime.Version(), runtime.GOOS, runtime.GOARCH)
 
@@ -69,10 +66,13 @@ func main() {
 	ldFlats = append(ldFlats, flagInfoStringFunc("appVersion", conf.App.Version))
 	ldFlats = append(ldFlats, flagInfoStringFunc("appDescription", conf.App.Description))
 
+	// git info
+	ldFlats = append(ldFlats, flagInfoStringFunc("commintSha", conf.Git.CommitSha))
+
 	// build env
 	ldFlats = append(ldFlats, flagInfoStringFunc("buildGoVersion", goVersionString))
 	ldFlats = append(ldFlats, flagInfoStringFunc("gccVersion", gccString))
-	ldFlats = append(ldFlats, flagInfoStringFunc("gitCommit", commitString))
+	ldFlats = append(ldFlats, flagInfoStringFunc("gitCommit", conf.Git.CommitSha))
 	ldFlats = append(ldFlats, flagInfoStringFunc("buildTime", buildTimeString))
 
 	// copyright
@@ -173,6 +173,8 @@ type Config struct {
 
 	App AppConfig `mapstructure:"app"`
 
+	Git GitConfig `mapstructure:"git"`
+
 	Copyright CopyrightConfig `mapstructure:"copyright"`
 }
 
@@ -198,6 +200,11 @@ type AppConfig struct {
 
 	Description string `mapstructure:"description"`
 }
+
+type GitConfig struct {
+	CommitSha string `mapstructure:"commintSha"`
+}
+
 type CopyrightConfig struct {
 	StartYear uint16 `mapstructure:"start"`
 
@@ -216,6 +223,8 @@ func LoadConfig() (conf Config) {
 	pflag.String("app.version", "0.0.0-test", "app version")
 	pflag.String("app.description", "description of app", "build bash file name")
 
+	pflag.String("git.commintSha", "", "commintSha id")
+
 	pflag.String("build.output", ".", "output dir")
 	pflag.String("build.source", "main.go", "source go file or dir")
 	pflag.String("build.script", "build.sh", "bash file name")
@@ -229,6 +238,7 @@ func LoadConfig() (conf Config) {
 	v.BindPFlags(pflag.CommandLine)
 
 	v.BindEnv("app.version", "APP_VERSION")
+	v.BindEnv("git.commintSha", "GIT_COMMIT_SHA")
 	// v.SetDefault("")
 
 	v.AddConfigPath(*configFile)

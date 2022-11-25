@@ -144,6 +144,7 @@ func getBuildCmd(appName, source, outputDir string, ldFlats []string, osString, 
 	cmd = exec.Command(
 		"go",
 		"build",
+		"-buildvcs=false",
 		"-trimpath",
 		"-ldflags",
 		fmt.Sprintf(`"%s"`, strings.Join(ldFlats, " \\\n")),

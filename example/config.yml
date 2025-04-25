@@ -3,6 +3,7 @@ app:
   version:
   description:
 build:
+  tags:
   output: 
   script:
   source:

@@ -1,3 +1,4 @@
+//go:build linux
 // +build linux
 
 package main
@@ -80,7 +81,7 @@ func main() {
 	ldFlats = append(ldFlats, flagInfoStringFunc("copyrightStart", fmt.Sprintf("%d", conf.Copyright.StartYear)))
 	ldFlats = append(ldFlats, flagInfoStringFunc("copyrightUpdate", now.Format("2006")))
 
-	outputFileName, buildCmdObj := getBuildCmd(conf.App.Name, conf.Build.Source, conf.Build.OutputDir, ldFlats, targetOS, targetArch)
+	outputFileName, buildCmdObj := getBuildCmd(conf.App.Name, conf.Build, ldFlats, targetOS, targetArch)
 
 	fmt.Println()
 	fmt.Println("build command is : ")
@@ -131,7 +132,7 @@ func main() {
 
 }
 
-func getBuildCmd(appName, source, outputDir string, ldFlats []string, osString, archString string) (filename string, cmd *exec.Cmd) {
+func getBuildCmd(appName string, buildConf BuildConfig, ldFlats []string, osString, archString string) (filename string, cmd *exec.Cmd) {
 
 	extString := ""
 	if osString == "windows" {
@@ -140,21 +141,28 @@ func getBuildCmd(appName, source, outputDir string, ldFlats []string, osString, 
 
 	filename = fmt.Sprintf("%s_%s_%s%s", appName, osString, archString, extString)
 
-	filename = filepath.Join(outputDir, filename)
-	cmd = exec.Command(
-		"go",
+	filename = filepath.Join(buildConf.OutputDir, filename)
+
+	cmdArgs := []string{
 		"build",
-		"-buildvcs=false",
+	}
+
+	if buildConf.Tags != "" {
+		cmdArgs = append(cmdArgs, "-tags="+buildConf.Tags)
+	}
+
+	cmdArgs = append(cmdArgs, "-buildvcs=false",
 		"-trimpath",
 		"-ldflags",
 		fmt.Sprintf(`"%s"`, strings.Join(ldFlats, " \\\n")),
-		// fmt.Sprintf(`"%s"`, strings.Join(ldFlats, " ")),
 		"\\\n",
 		"-o",
 		filename,
 		"\\\n",
-		source,
+		buildConf.Source,
 	)
+
+	cmd = exec.Command("go", cmdArgs...)
 	return filename, cmd
 }
 func execShell(name string, args ...string) []byte {
@@ -180,6 +188,7 @@ type Config struct {
 }
 
 type BuildConfig struct {
+	Tags string `mapstructure:"tags"`
 
 	// OutputDir files outout dir
 	OutputDir string `mapstructure:"output"`

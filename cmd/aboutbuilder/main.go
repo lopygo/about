@@ -235,6 +235,7 @@ func LoadConfig() (conf Config) {
 
 	pflag.String("git.commintSha", "", "commintSha id")
 
+	pflag.String("build.tags", "", "build tags")
 	pflag.String("build.output", ".", "output dir")
 	pflag.String("build.source", "main.go", "source go file or dir")
 	pflag.String("build.script", "build.sh", "bash file name")
